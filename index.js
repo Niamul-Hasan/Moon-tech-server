@@ -10,7 +10,7 @@ app.use(express.json());
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.USER}:${process.env.PASS}@cluster0.deksrvn.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
@@ -29,6 +29,23 @@ async function run(){
     
           res.send({ status: true, data: product });
         });
+
+         app.put('/products/:id',async (req,res)=>{
+          const id=req.params.id;
+          const filter={_id:ObjectId(id)};
+          const option={upsert:true};
+          const data=req.body;
+          console.log(data);
+          const updateDoc = {
+            $set: {
+                brand:data.brand,
+                status:data.status,
+                price:data.price,
+            }
+          };
+          const updateProduct=await productCollection.updateOne(filter,updateDoc,option);
+          res.send(updateProduct);
+        })
 
     }
     finally{
